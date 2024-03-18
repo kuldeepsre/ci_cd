@@ -40,31 +40,7 @@ jobs:
       - name: Build Android APK
         run: flutter build apk --release --split-per-abi
 
-      - name: Build iOS IPA
-        run: |
-          flutter build ios --release --no-codesign
-          echo "FLUTTER_BUILD_DIR: ${FLUTTER_BUILD_DIR}"
-          if [ -d "${FLUTTER_BUILD_DIR}" ]; then
-            echo "FLUTTER_BUILD_DIR exists"
-            if [ -d "${FLUTTER_BUILD_DIR}/ios" ]; then
-              echo "iOS directory exists inside FLUTTER_BUILD_DIR"
-              cd "${FLUTTER_BUILD_DIR}/ios" || { echo "Failed to navigate to iOS directory"; exit 1; }
-              pod install || { echo "Failed to run 'pod install'"; exit 1; }
-              cd ..
-              mkdir Payload
-              cd Payload
-              ln -s ../Runner.app
-              cd ..
-              zip -r app.ipa Payload || { echo "Failed to create IPA"; exit 1; }
-              mv app.ipa ../../../app.ipa || { echo "Failed to move IPA"; exit 1; }
-            else
-              echo "iOS directory not found inside FLUTTER_BUILD_DIR"
-              exit 1
-            fi
-          else
-            echo "FLUTTER_BUILD_DIR not set or does not exist"
-            exit 1
-          fi
+
       - name: Push to Releases
         uses: ncipollo/release-action@v1
         with:
