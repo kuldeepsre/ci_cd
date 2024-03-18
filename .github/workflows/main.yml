@@ -14,38 +14,32 @@ on:
 jobs:
   build:
     name: Build & Release
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup Java
-        uses: actions/setup-java@v2
-        with:
-          distribution: 'zulu'
-          java-version: '12'
-
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
-          architecture: x64
+          flutter-version: 'stable'
 
       - name: Install CocoaPods
         run: |
-          gem install cocoapods
+          sudo gem install cocoapods
           pod setup
 
       - name: Build Android APK
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release
 
       - name: Build iOS IPA
         run: |
           flutter build ios --release --no-codesign
-          cd ios
+          cd "${FLUTTER_BUILD_DIR}" || exit 1 # Navigate to Flutter build directory
+          cd ios || exit 1 # Navigate to ios directory
           pod install
-          cd "${FLUTTER_BUILD_DIR}/ios" # Use FLUTTER_BUILD_DIR environment variable
+          cd ..
           mkdir Payload
           cd Payload
           ln -s ../Runner.app
@@ -59,8 +53,3 @@ jobs:
           artifacts: "build/app/outputs/apk/release/*,app.ipa"
           tag: v1.0.${{ github.run_number }}
           token: ${{ secrets.TOKEN }}
-
-
-
-
-
