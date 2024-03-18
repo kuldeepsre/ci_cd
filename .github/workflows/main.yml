@@ -34,9 +34,8 @@ jobs:
 
       - name: Install CocoaPods
         run: |
-          sudo gem install cocoapods
+          gem install cocoapods
           pod setup
-
       - name: Build Android APK
         run: flutter build apk --release --split-per-abi
 
